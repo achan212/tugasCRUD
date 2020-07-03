@@ -1,10 +1,10 @@
-  
 <?php
 
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use \App\Pertanyaan;
+use Carbon\Carbon;
 
 class PertanyaanController extends Controller
 {
@@ -28,7 +28,7 @@ class PertanyaanController extends Controller
     public function create()
     {
         //
-        return view('buat_Pertanyaan');
+        return view('buatPertanyaan');
     }
 
     /**
@@ -39,10 +39,14 @@ class PertanyaanController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Carbon::setLocale('id');
+        $tgl = Carbon::now()->format('l, d F Y H:i');
+
         $pertanyaan = new Pertanyaan;
         $pertanyaan->judul = $request->judul;
         $pertanyaan->isi = $request->isi;
+        $pertanyaan->created_at = $tgl;
+        $pertanyaan->updated_at = $tgl;
         $pertanyaan->Save();
 
         return redirect('/pertanyaan')->with('pesan','Pertanyaan Baru telah ditambahkan');
@@ -68,6 +72,8 @@ class PertanyaanController extends Controller
     public function edit($id)
     {
         //
+        $pertanyaan = Pertanyaan::find($id);
+        return view('editPertanyaan',compact('pertanyaan'));
     }
 
     /**
@@ -79,7 +85,17 @@ class PertanyaanController extends Controller
      */
     public function update(Request $request, $id)
     {
+        Carbon::setLocale('id');
+        $tgl = Carbon::now()->format('l, d F Y H:i');
         //
+        $pertanyaan = Pertanyaan::find($id);
+        $pertanyaan->judul = $request->judul;
+        $pertanyaan->isi = $request->isi;
+        $pertanyaan->created_at = $pertanyaan->created_at;
+        $pertanyaan->updated_at = $tgl;
+        $pertanyaan->Save();
+
+        return redirect('/pertanyaan')->with('pesanUpdate','Berhasil memperbarui Pertanyaan '.$pertanyaan->isi);
     }
 
     /**
@@ -91,5 +107,9 @@ class PertanyaanController extends Controller
     public function destroy($id)
     {
         //
+        $pertanyaan = Pertanyaan::find($id);
+        $pertanyaan->delete();
+
+        return redirect('/pertanyaan')->with('pesanHapus','Berhasil menghapus sebuah pertanyaan');
     }
 }
